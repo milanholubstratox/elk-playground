@@ -48,6 +48,39 @@ resource "helm_release" "fluent" {
   repository       = "https://fluent.github.io/helm-charts"
   chart            = "fluent-bit"
   version          = "0.24.0"
+  set {
+    name  = "config.outputs"
+    value = <<EOF
+[OUTPUT]
+    Name es
+    Match kube.*
+    Host elasticsearch-master.elastic-system
+    Trace_Error On
+    Replace_Dots On
+    Suppress_Type_Name On
+    tls On
+    tls.verify Off
+    HTTP_User elastic
+    HTTP_Passwd 1eUpohXsynHzKEG0
+    Logstash_Format On
+    Retry_Limit False
+
+[OUTPUT]
+    Name es
+    Match host.*
+    Host elasticsearch-master.elastic-system
+    Trace_Error On
+    Replace_Dots On
+    Suppress_Type_Name On
+    tls On
+    tls.verify Off
+    HTTP_User elastic
+    HTTP_Passwd 1eUpohXsynHzKEG0
+    Logstash_Format On
+    Logstash_Prefix node
+    Retry_Limit False
+EOF
+  }
   depends_on = [k3d_cluster.mycluster,helm_release.es]
 }
 
