@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>ELK playground</title>
+<meta name="author" content="Milan Holub"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.4.0/dist/reveal.css"/>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.4.0/dist/theme/black.css" id="theme"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.4.0/plugin/highlight/zenburn.css"/>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">ELK playground</h1><h2 class="author">Milan Holub</h2><p class="date">Created: 2023-02-16 Thu 12:22</p>
+</section>
+<section id="table-of-contents-section">
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#/slide-1">1. Introduction</a></li>
+<li><a href="#/slide-2">2. implementation</a></li>
+<li><a href="#/slide-3">3. exploring the solution</a></li>
+<li><a href="#/slide-4">4. alternative implementation considered</a></li>
+<li><a href="#/slide-5">5. challenges I faced</a></li>
+<li><a href="#/slide-6">6. Some ideas (not implemented)</a></li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<section id="slide-1">
+<h2 id="1"><span class="section-number-2">1.</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+</section>
+<section id="slide-1-1">
+<h3 id="1-1"><span class="section-number-3">1.1.</span> goals</h3>
+<ul>
+<li class="on"><code>[X]</code> deploy ELK on Linux system</li>
+<li class="on"><code>[X]</code> simulate log production</li>
+<li class="off"><code>[&#xa0;]</code> create kibana dashboard</li>
+<li class="off"><code>[&#xa0;]</code> filter using logstash</li>
+<li class="on"><code>[X]</code> setup monitoring of the solution</li>
+
+</ul>
+
+
+</section>
+</section>
+<section>
+<section id="slide-2">
+<h2 id="2"><span class="section-number-2">2.</span> implementation</h2>
+<p>
+available in <a href="https://github.com/milanholubstratox/elk-playground">elk-playground</a>
+</p>
+
+</section>
+<section id="slide-2-1">
+<h3 id="2-1"><span class="section-number-3">2.1.</span> orchestration tool - terraform</h3>
+<p>
+providers
+</p>
+<ul>
+<li>pvotal-tech/k3d</li>
+<li>hashicorp/helm</li>
+
+</ul>
+</section>
+<section id="slide-2-2">
+<h3 id="2-2"><span class="section-number-3">2.2.</span> deployment platform - k3d</h3>
+</section>
+<section id="slide-2-3">
+<h3 id="2-3"><span class="section-number-3">2.3.</span> application configuration - helm</h3>
+<p>
+helm charts used
+</p>
+<ul>
+<li>elasticsearch</li>
+<li>kibana</li>
+<li>fluent-bit</li>
+<li>kube-prometheus-stack</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-3">
+<h2 id="3"><span class="section-number-2">3.</span> exploring the solution</h2>
+<ul>
+<li>k9s</li>
+<li>port forward
+<ul>
+<li>kibana</li>
+<li>grafana</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-4">
+<h2 id="4"><span class="section-number-2">4.</span> alternative implementation considered</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+</section>
+<section id="slide-4-1">
+<h3 id="4-1"><span class="section-number-3">4.1.</span> orchestration</h3>
+<ul>
+<li>argocd CD</li>
+<li>concourse CI</li>
+
+</ul>
+</section>
+<section id="slide-4-2">
+<h3 id="4-2"><span class="section-number-3">4.2.</span> deployment platform</h3>
+<ul>
+<li>k3d/k3s auto-deploy feature
+<ul>
+<li>manifests/helm files (/var/lib/rancher/k3s/server/manifests)</li>
+
+</ul></li>
+<li>docker-compose</li>
+
+</ul>
+</section>
+<section id="slide-4-3">
+<h3 id="4-3"><span class="section-number-3">4.3.</span> application configuration/deployment</h3>
+<ul>
+<li>using ECK (Elastic Cloud on Kubernetes)
+<ul>
+<li>deploy operator</li>
+<li>use CRD manifests to deploy ES,kibana
+<ul>
+<li>would require additional terraform k8s plugin</li>
+
+</ul></li>
+<li>use helm charts ecs-es, eck-kibana
+<ul>
+<li>would require Enterprise licensing</li>
+
+</ul></li>
+
+</ul></li>
+<li>using bitnami helm chart (bundles ES+kibana)
+<ul>
+<li>too big deployment by default (2 nodes, large PVCs)</li>
+
+</ul></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-5">
+<h2 id="5"><span class="section-number-2">5.</span> challenges I faced</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+</section>
+<section id="slide-5-1">
+<h3 id="5-1"><span class="section-number-3">5.1.</span> relative big elk docker images</h3>
+<ul>
+<li>problem: long pulling times, terraform apply timeouts</li>
+<li>solution: create pull-through/caching k3d registry</li>
+
+</ul>
+</section>
+<section id="slide-5-2">
+<h3 id="5-2"><span class="section-number-3">5.2.</span> explicit dependencies in terraform</h3>
+
+</section>
+</section>
+<section>
+<section id="slide-6">
+<h2 id="6"><span class="section-number-2">6.</span> Some ideas (not implemented)</h2>
+<ul>
+<li>generate log records using fluent-bit random input</li>
+<li>stress-test ES using <a href="https://k6.io/">k6s</a></li>
+<li>compare ES with loki
+<ul>
+<li>install loki into the cluster</li>
+<li>reconfigure fluent-bit to send logs to ES and loki in parallel</li>
+
+</ul></li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.4.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.4.0/plugin/highlight/highlight.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+overview: true,
+
+transition: 'convex',
+transitionSpeed: 'default',
+
+// Plugins with reveal.js 4.x
+plugins: [ RevealHighlight ],
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+]
+
+});
+</script>
+</body>
+</html>

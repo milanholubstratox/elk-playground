@@ -1,0 +1,66 @@
+#+TITLE: ELK playground
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js@4.4.0
+#+REVEAL_VERSION: 4
+#+EXPORT_FILE_NAME: docs/slides.html
+#+REVEAL_PLUGINS: (highlight)
+#+OPTIONS: toc:1
+
+* Introduction
+  
+** goals
+  - [X] deploy ELK on Linux system
+  - [X] simulate log production
+  - [ ] create kibana dashboard
+  - [ ] filter using logstash
+  - [X] setup monitoring of the solution
+
+
+* implementation
+  available in [[https://github.com/milanholubstratox/elk-playground][elk-playground]]
+  
+** orchestration tool - terraform
+   providers
+   - pvotal-tech/k3d
+   - hashicorp/helm
+** deployment platform - k3d
+** application configuration - helm
+   helm charts used
+   - elasticsearch
+   - kibana
+   - fluent-bit
+   - kube-prometheus-stack
+* exploring the solution 
+  - k9s
+  - port forward
+    - kibana
+    - grafana
+* alternative implementation considered
+** orchestration
+   - argocd CD
+   - concourse CI
+** deployment platform
+   - k3d/k3s auto-deploy feature
+     - manifests/helm files (/var/lib/rancher/k3s/server/manifests)
+   - docker-compose
+** application configuration/deployment
+   - using ECK (Elastic Cloud on Kubernetes)
+     - deploy operator
+     - use CRD manifests to deploy ES,kibana
+       - would require additional terraform k8s plugin
+     - use helm charts ecs-es, eck-kibana
+       - would require Enterprise licensing
+   - using bitnami helm chart (bundles ES+kibana)
+     - too big deployment by default (2 nodes, large PVCs)
+  
+* challenges I faced
+**  relative big elk docker images
+   - problem: long pulling times, terraform apply timeouts
+   - solution: create pull-through/caching k3d registry
+** explicit dependencies in terraform
+
+* Some ideas (not implemented)
+  - generate log records using fluent-bit random input
+  - stress-test ES using [[https://k6.io/][k6s]]
+  - compare ES with loki
+    - install loki into the cluster
+    - reconfigure fluent-bit to send logs to ES and loki in parallel
