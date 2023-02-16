@@ -1,0 +1,23 @@
+#+TITLE: ELK playground
+#+OPTIONS: toc:2
+
+* Introduction
+  This is a playground repository which demonstrates ELK deployment in local k3d
+  cluster. Additionally fluent-bit is installed as log collector and
+  kube-prometheus-stack as a monitoring solution.
+  
+* Requirements
+  - [[https://www.terraform.io/][terraform]]
+  - [[https://k3d.io/v5.4.7/][k3d]]
+  - [[https://k9scli.io/][k9s]]
+  - [[https://kubernetes.io/docs/tasks/tools/][kubectl]]
+  
+* Setup
+  #+begin_src shell
+    terraform init
+    terraform apply --target k3d_cluster.mycluster # create local k3d cluster
+    k3d kubeconfig get demo > ~/.k3d/kubeconfig-demo.yaml # get kubeconfig
+    terraform apply # deploy 
+    export KUBECONFIG=~/.k3d/kubeconfig-demo.yaml 
+    k9s # explore
+  #+end_src
